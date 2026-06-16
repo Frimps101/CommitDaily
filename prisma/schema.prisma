@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ----------------------------------------------------------------------------
+// Auth.js (NextAuth) models
+// ----------------------------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+
+  // GitHub login handle, captured at sign-in for GraphQL queries.
+  githubLogin String?
+
+  accounts          Account[]
+  sessions          Session[]
+  settings          Settings?
+  streakState       StreakState?
+  pushSubscriptions PushSubscription[]
+  dailyContributions DailyContribution[]
+  milestones        MilestoneAward[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+
+  // OAuth tokens. access_token is stored ENCRYPTED at rest (see lib/crypto.ts).
+  // It is never sent to the client; only server-side services read it.
+  refresh_token String? @db.Text
+  access_token  String? @db.Text
+  expires_at    Int?
+  token_type    String?
+  scope         String?
+  id_token      String? @db.Text
+  session_state String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ----------------------------------------------------------------------------
+// App models
+// ----------------------------------------------------------------------------
+
+model Settings {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // IANA timezone, e.g. "America/New_York". Drives the local-midnight reset.
+  timezone String @default("UTC")
+
+  // A day "counts" when contributions >= dailyThreshold.
+  dailyThreshold Int @default(1)
+
+  // One forgiven missed day when enabled.
+  freezeEnabled Boolean @default(true)
+
+  // Reminder times stored as "HH:mm" in the user's local timezone.
+  reminderTime     String  @default("18:00")
+  lastCallEnabled  Boolean @default(true)
+  lastCallTime     String  @default("21:30")
+
+  // The end-of-year contribution goal and target date.
+  goalTotal     Int      @default(1000)
+  goalDeadline  DateTime @default(dbgenerated("date_trunc('year', now()) + interval '1 year' - interval '1 day'"))
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StreakState {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  currentStreak Int @default(0)
+  longestStreak Int @default(0)
+
+  // The most recent local date (yyyy-MM-dd) that satisfied the threshold.
+  lastCountedDate String?
+
+  // Whether the single freeze has already been spent in the current run.
+  freezeUsed Boolean @default(false)
+
+  updatedAt DateTime @updatedAt
+}
+
+// One row per local calendar day, the source of truth for streak math and
+// the heatmap. Lets us serve cached data offline and avoid re-querying GitHub.
+model DailyContribution {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Local date string "yyyy-MM-dd" (in the user's timezone at fetch time).
+  date  String
+  count Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date])
+  @@index([userId])
+}
+
+model PushSubscription {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  endpoint String @unique
+  p256dh   String
+  auth     String
+
+  // Diagnostic: helps us test the iOS-installed-PWA constraint explicitly.
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model MilestoneAward {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  threshold Int
+  awardedAt DateTime @default(now())
+
+  @@unique([userId, threshold])
+}
+
+// Records each reminder we send so the cron heartbeat is idempotent and never
+// double-notifies within the same local day.
+model NotificationLog {
+  id     String @id @default(cuid())
+  userId String
+
+  // "yyyy-MM-dd" local date the notification is for.
+  date String
+  // "reminder" | "last_call"
+  kind String
+
+  sentAt DateTime @default(now())
+
+  @@unique([userId, date, kind])
+  @@index([userId])
+}
