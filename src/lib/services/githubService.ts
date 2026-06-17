@@ -91,7 +91,7 @@ export async function fetchContributions(
     to: toISO,
   });
 
-  const calendar = res.user?.contributionsCollection.contributionCalendar;
+  const calendar = res.user?.contributionsCollection?.contributionCalendar;
   if (!calendar) {
     return { days: [], totalContributions: 0 };
   }
