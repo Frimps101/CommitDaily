@@ -44,11 +44,11 @@ export function Heatmap({
         />
         <div className="mt-3 flex items-center justify-end gap-1 text-xs text-muted-foreground">
           <span>Less</span>
-          <span className="inline-block h-3 w-3 rounded-sm bg-muted" />
-          <span className="inline-block h-3 w-3 rounded-sm" style={{ background: "#0e4429" }} />
-          <span className="inline-block h-3 w-3 rounded-sm" style={{ background: "#006d32" }} />
-          <span className="inline-block h-3 w-3 rounded-sm" style={{ background: "#26a641" }} />
-          <span className="inline-block h-3 w-3 rounded-sm" style={{ background: "#39d353" }} />
+          <span className="inline-block h-3 w-3 rounded-sm" style={{ background: "var(--hm-empty)" }} />
+          <span className="inline-block h-3 w-3 rounded-sm" style={{ background: "var(--hm-1)" }} />
+          <span className="inline-block h-3 w-3 rounded-sm" style={{ background: "var(--hm-2)" }} />
+          <span className="inline-block h-3 w-3 rounded-sm" style={{ background: "var(--hm-3)" }} />
+          <span className="inline-block h-3 w-3 rounded-sm" style={{ background: "var(--hm-4)" }} />
           <span>More</span>
         </div>
       </CardContent>

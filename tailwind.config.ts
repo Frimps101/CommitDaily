@@ -6,8 +6,8 @@ const config: Config = {
   theme: {
     container: {
       center: true,
-      padding: "1rem",
-      screens: { "2xl": "1100px" },
+      padding: "1.5rem",
+      screens: { "2xl": "1280px" },
     },
     extend: {
       fontFamily: {

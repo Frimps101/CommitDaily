@@ -55,27 +55,41 @@
   }
 }
 
-/* react-calendar-heatmap base + GitHub-like green scale */
+/* ---------------------------------------------------------------------------
+   Heatmap palette — tweak these to recolor the contribution graph.
+   --------------------------------------------------------------------------- */
+:root {
+  --hm-empty: #1a2230;
+  --hm-1: #0e4429;
+  --hm-2: #016d32;
+  --hm-3: #26a641;
+  --hm-4: #39d353;
+  --hm-text: hsl(215 16% 52%);
+}
+
+/* The library ships its own light-theme styles.css (empty = #eeeeee, near
+   white). These selectors are scoped + !important so our dark palette always
+   wins regardless of CSS import order. */
 .react-calendar-heatmap text {
   font-size: 6px;
-  fill: hsl(var(--muted-foreground));
-}
-.react-calendar-heatmap .color-empty {
-  fill: hsl(var(--muted));
-}
-.react-calendar-heatmap .color-scale-1 {
-  fill: #0e4429;
-}
-.react-calendar-heatmap .color-scale-2 {
-  fill: #006d32;
-}
-.react-calendar-heatmap .color-scale-3 {
-  fill: #26a641;
-}
-.react-calendar-heatmap .color-scale-4 {
-  fill: #39d353;
+  fill: var(--hm-text) !important;
 }
 .react-calendar-heatmap rect {
   rx: 2;
   ry: 2;
+}
+.react-calendar-heatmap .color-empty {
+  fill: var(--hm-empty) !important;
+}
+.react-calendar-heatmap .color-scale-1 {
+  fill: var(--hm-1) !important;
+}
+.react-calendar-heatmap .color-scale-2 {
+  fill: var(--hm-2) !important;
+}
+.react-calendar-heatmap .color-scale-3 {
+  fill: var(--hm-3) !important;
+}
+.react-calendar-heatmap .color-scale-4 {
+  fill: var(--hm-4) !important;
 }

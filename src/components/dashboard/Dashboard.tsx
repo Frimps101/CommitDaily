@@ -58,45 +58,57 @@ export function Dashboard() {
       <Header onRefresh={() => sync.mutate()} refreshing={sync.isPending} />
       <CelebrationOverlay />
 
-      <main className="container space-y-6 py-6">
+      <main className="container space-y-8 py-10">
         <StatusBanner status={streak.status} todayCount={streak.todayCount} />
 
-        {/* Headline pace number */}
-        <Card className="overflow-hidden">
-          <CardContent className="flex flex-col items-center gap-2 p-8 text-center">
-            <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              You need this many contributions per day
-            </div>
-            <div className="text-6xl font-extrabold tabular-nums text-primary">
-              {progress.pace}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              {progress.remaining.toLocaleString()} to go ·{" "}
-              {progress.daysRemaining} day{progress.daysRemaining === 1 ? "" : "s"} left until{" "}
-              {progress.deadline}
-            </div>
-            <ProgressBar percent={progress.percent} />
-            <div className="text-xs text-muted-foreground">
-              {progress.total.toLocaleString()} / {progress.goalTotal.toLocaleString()} ·{" "}
-              {progress.percent}%
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* Left column: pace, streak stats, heatmap */}
+          <div className="space-y-8 lg:col-span-2">
+            {/* Compact pace banner */}
+            <Card>
+              <CardContent className="p-5">
+                <div className="flex items-end justify-between gap-4">
+                  <div>
+                    <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Contributions / day needed
+                    </div>
+                    <div className="text-4xl font-extrabold leading-none tabular-nums text-primary">
+                      {progress.pace}
+                    </div>
+                  </div>
+                  <div className="text-right text-xs text-muted-foreground">
+                    <div className="font-medium text-foreground">
+                      {progress.total.toLocaleString()} / {progress.goalTotal.toLocaleString()} · {progress.percent}%
+                    </div>
+                    <div>
+                      {progress.remaining.toLocaleString()} to go ·{" "}
+                      {progress.daysRemaining} day{progress.daysRemaining === 1 ? "" : "s"} left
+                    </div>
+                  </div>
+                </div>
+                <ProgressBar percent={progress.percent} />
+              </CardContent>
+            </Card>
 
-        <div className="grid grid-cols-3 gap-4">
-          <StatCard
-            label="Current streak"
-            value={streak.currentStreak}
-            accent="primary"
-            hint={streak.freezeUsed ? "freeze used" : undefined}
-          />
-          <StatCard label="Longest streak" value={streak.longestStreak} />
-          <StatCard label="Today" value={streak.todayCount} hint={streak.todayMet ? "met ✓" : "not met yet"} accent={streak.todayMet ? "primary" : "warning"} />
+            <div className="grid grid-cols-3 gap-4">
+              <StatCard
+                label="Current streak"
+                value={streak.currentStreak}
+                accent="primary"
+                hint={streak.freezeUsed ? "freeze used" : undefined}
+              />
+              <StatCard label="Longest streak" value={streak.longestStreak} />
+              <StatCard label="Today" value={streak.todayCount} hint={streak.todayMet ? "met ✓" : "not met yet"} accent={streak.todayMet ? "primary" : "warning"} />
+            </div>
+
+            <Heatmap days={heatmap} year={year} />
+          </div>
+
+          {/* Right column: milestones */}
+          <div className="space-y-6">
+            <MilestoneTracker all={milestones.all} total={progress.total} />
+          </div>
         </div>
-
-        <Heatmap days={heatmap} year={year} />
-
-        <MilestoneTracker all={milestones.all} total={progress.total} />
 
         <p className="flex items-start gap-2 text-xs text-muted-foreground">
           <Gauge className="mt-0.5 h-3.5 w-3.5 shrink-0" />
@@ -112,7 +124,7 @@ export function Dashboard() {
 
 function ProgressBar({ percent }: { percent: number }) {
   return (
-    <div className="mt-2 h-3 w-full max-w-md overflow-hidden rounded-full bg-muted">
+    <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-muted">
       <div
         className="h-full rounded-full bg-primary transition-all"
         style={{ width: `${Math.min(100, Math.max(0, percent))}%` }}
