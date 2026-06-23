@@ -59,8 +59,6 @@ export function Dashboard() {
       <CelebrationOverlay />
 
       <main className="container space-y-8 py-10">
-        <StatusBanner status={streak.status} todayCount={streak.todayCount} />
-
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Left column: pace, streak stats, heatmap */}
           <div className="space-y-8 lg:col-span-2">
@@ -91,21 +89,17 @@ export function Dashboard() {
             </Card>
 
             <div className="grid grid-cols-3 gap-4">
-              <StatCard
-                label="Current streak"
-                value={streak.currentStreak}
-                accent="primary"
-                hint={streak.freezeUsed ? "freeze used" : undefined}
-              />
-              <StatCard label="Longest streak" value={streak.longestStreak} />
-              <StatCard label="Today" value={streak.todayCount} hint={streak.todayMet ? "met ✓" : "not met yet"} accent={streak.todayMet ? "primary" : "warning"} />
+              <StatCard label="Today" value={streak.todayCount} accent={streak.todayMet ? "primary" : "warning"} />
+              <StatCard label="Current streak" value={streak.currentStreak} accent="primary" />
+              <StatCard label="Longest streak" value={streak.longestStreak} accent="primary" />
             </div>
 
             <Heatmap days={heatmap} year={year} />
           </div>
 
-          {/* Right column: milestones */}
-          <div className="space-y-6">
+          {/* Right column: status + milestones */}
+          <div className="space-y-8">
+            <StatusBanner status={streak.status} todayCount={streak.todayCount} />
             <MilestoneTracker all={milestones.all} total={progress.total} />
           </div>
         </div>
