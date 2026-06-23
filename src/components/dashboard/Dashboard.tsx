@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Flame, Target, CalendarDays, Gauge, Trophy, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Gauge, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { Heatmap } from "@/components/dashboard/Heatmap";
-import { TrendChart } from "@/components/dashboard/TrendChart";
 import { MilestoneTracker } from "@/components/dashboard/MilestoneTracker";
 import { CelebrationOverlay } from "@/components/dashboard/CelebrationOverlay";
-import { PushManager } from "@/components/dashboard/PushManager";
 import { Card, CardContent } from "@/components/ui/card";
 import { useDashboard, useSync } from "@/hooks/useDashboard";
 import { cn } from "@/lib/utils";
@@ -85,36 +83,15 @@ export function Dashboard() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-3 gap-4">
           <StatCard
             label="Current streak"
-            value={
-              <span className="flex items-center gap-1">
-                <Flame className="h-5 w-5 text-primary" />
-                {streak.currentStreak}
-              </span>
-            }
+            value={streak.currentStreak}
             accent="primary"
             hint={streak.freezeUsed ? "freeze used" : undefined}
           />
-          <StatCard
-            label="Longest streak"
-            value={
-              <span className="flex items-center gap-1">
-                <Trophy className="h-5 w-5 text-amber-400" />
-                {streak.longestStreak}
-              </span>
-            }
-          />
+          <StatCard label="Longest streak" value={streak.longestStreak} />
           <StatCard label="Today" value={streak.todayCount} hint={streak.todayMet ? "met ✓" : "not met yet"} accent={streak.todayMet ? "primary" : "warning"} />
-          <StatCard label="Total YTD" value={progress.total.toLocaleString()} hint={<span className="flex items-center gap-1"><Target className="h-3 w-3" />goal {progress.goalTotal.toLocaleString()}</span>} />
-          <StatCard label="Remaining" value={progress.remaining.toLocaleString()} />
-          <StatCard label="Days left" value={progress.daysRemaining} hint={<span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />to {progress.deadline.slice(5)}</span>} />
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <TrendChart days={heatmap} goalTotal={progress.goalTotal} deadline={progress.deadline} />
-          <PushManager />
         </div>
 
         <Heatmap days={heatmap} year={year} />

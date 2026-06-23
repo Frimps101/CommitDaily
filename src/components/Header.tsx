@@ -4,6 +4,7 @@ import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { Flame, RefreshCw, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ReminderButton } from "@/components/ReminderButton";
 import { cn } from "@/lib/utils";
 
 export function Header({
@@ -35,6 +36,7 @@ export function Header({
                 <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
               </Button>
             ) : null}
+            <ReminderButton />
             <Button variant="ghost" size="icon" asChild title="Settings">
               <Link href="/settings">
                 <Settings className="h-4 w-4" />
