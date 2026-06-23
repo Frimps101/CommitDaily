@@ -1,6 +1,14 @@
 import type { Metadata, Viewport } from "next";
+import { Lato } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+
+const lato = Lato({
+  subsets: ["latin"],
+  weight: ["400", "700", "900"],
+  variable: "--font-lato",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "CommitDaily — GitHub streak tracker",
@@ -31,8 +39,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body className="min-h-screen antialiased">
+    <html lang="en" className={`dark ${lato.variable}`} suppressHydrationWarning>
+      <body className={`${lato.className} min-h-screen antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>
