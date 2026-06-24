@@ -21,14 +21,19 @@ self.addEventListener("push", (event: PushEvent) => {
     if (event.data) payload.body = event.data.text();
   }
 
+  console.log("[CommitDaily SW] push received:", payload);
+
   event.waitUntil(
-    self.registration.showNotification(payload.title, {
-      body: payload.body,
-      icon: "/icons/icon-192.png",
-      badge: "/icons/badge-72.png",
-      tag: payload.tag ?? "commitdaily",
-      data: { url: payload.url ?? "/" },
-    }),
+    self.registration
+      .showNotification(payload.title, {
+        body: payload.body,
+        icon: "/icons/icon-192.png",
+        badge: "/icons/badge-72.png",
+        tag: payload.tag ?? "commitdaily",
+        data: { url: payload.url ?? "/" },
+      })
+      .then(() => console.log("[CommitDaily SW] showNotification resolved"))
+      .catch((err) => console.error("[CommitDaily SW] showNotification failed:", err)),
   );
 });
 
