@@ -49,9 +49,30 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return output;
 }
 
+/**
+ * Wait for an active service worker, but don't hang forever. In `npm run dev`
+ * the PWA service worker is disabled, so `navigator.serviceWorker.ready` never
+ * resolves — without this timeout the Enable button would spin silently.
+ */
+async function readyServiceWorker(timeoutMs = 4000): Promise<ServiceWorkerRegistration> {
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(
+      () =>
+        reject(
+          new Error(
+            "Service worker isn't active. Push is disabled in dev — run `npm run build && npm start` (and on iOS, install the PWA to the home screen).",
+          ),
+        ),
+      timeoutMs,
+    ),
+  );
+  return Promise.race([navigator.serviceWorker.ready, timeout]);
+}
+
 export async function getExistingSubscription(): Promise<PushSubscription | null> {
-  const reg = await navigator.serviceWorker.ready;
-  return reg.pushManager.getSubscription();
+  const existing = await navigator.serviceWorker.getRegistration();
+  if (!existing) return null;
+  return existing.pushManager.getSubscription();
 }
 
 export async function enablePush(): Promise<void> {
@@ -63,7 +84,7 @@ export async function enablePush(): Promise<void> {
     throw new Error("Notification permission was not granted");
   }
 
-  const reg = await navigator.serviceWorker.ready;
+  const reg = await readyServiceWorker();
   let sub = await reg.pushManager.getSubscription();
   if (!sub) {
     sub = await reg.pushManager.subscribe({
@@ -76,7 +97,7 @@ export async function enablePush(): Promise<void> {
 }
 
 export async function disablePush(): Promise<void> {
-  const reg = await navigator.serviceWorker.ready;
+  const reg = await readyServiceWorker();
   const sub = await reg.pushManager.getSubscription();
   if (sub) {
     await unsubscribePush(sub.endpoint);
