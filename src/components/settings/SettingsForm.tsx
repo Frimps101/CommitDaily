@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Save } from "lucide-react";
+import { Save, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -111,21 +111,24 @@ export function SettingsForm() {
           <div className="grid gap-2">
             <Label htmlFor="timezone">Timezone</Label>
             <div className="flex gap-2">
-              <select
-                id="timezone"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                value={draft.timezone}
-                onChange={(e) => patch({ timezone: e.target.value })}
-              >
-                {zones.includes(draft.timezone) ? null : (
-                  <option value={draft.timezone}>{draft.timezone}</option>
-                )}
-                {zones.map((z) => (
-                  <option key={z} value={z}>
-                    {z}
-                  </option>
-                ))}
-              </select>
+              <div className="relative flex-1">
+                <select
+                  id="timezone"
+                  className="h-10 w-full appearance-none rounded-md border border-input bg-background px-3 pr-9 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  value={draft.timezone}
+                  onChange={(e) => patch({ timezone: e.target.value })}
+                >
+                  {zones.includes(draft.timezone) ? null : (
+                    <option value={draft.timezone}>{draft.timezone}</option>
+                  )}
+                  {zones.map((z) => (
+                    <option key={z} value={z}>
+                      {z}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              </div>
               <Button type="button" variant="outline" onClick={detectTimezone}>
                 Detect
               </Button>
