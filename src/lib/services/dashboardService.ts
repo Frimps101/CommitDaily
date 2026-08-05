@@ -2,7 +2,7 @@ import { getOrCreateSettings } from "@/lib/repositories/settingsRepository";
 import { getDailyCounts } from "@/lib/repositories/contributionRepository";
 import { getAwardedThresholds } from "@/lib/repositories/milestoneRepository";
 import { computeFromStore } from "@/lib/services/syncService";
-import { MILESTONES } from "@/lib/services/statsService";
+import { normalizeMilestones } from "@/lib/services/statsService";
 import { startOfYearLocal, type LocalDate } from "@/lib/date";
 
 /** Client-safe settings shape (no ids/timestamps). */
@@ -14,6 +14,7 @@ export type PublicSettings = {
   lastCallEnabled: boolean;
   lastCallTime: string;
   goalTotal: number;
+  milestones: number[];
 };
 
 export type DashboardPayload = {
@@ -35,6 +36,7 @@ export async function getDashboard(userId: string): Promise<DashboardPayload> {
   const yearStart = startOfYearLocal(settings.timezone);
   const stored = await getDailyCounts(userId, yearStart);
   const awarded = await getAwardedThresholds(userId);
+  const milestones = normalizeMilestones(settings.milestones);
 
   return {
     streak,
@@ -48,8 +50,9 @@ export async function getDashboard(userId: string): Promise<DashboardPayload> {
       lastCallEnabled: settings.lastCallEnabled,
       lastCallTime: settings.lastCallTime,
       goalTotal: settings.goalTotal,
+      milestones,
     },
     heatmap: stored.map((d) => ({ date: d.date, count: d.count })),
-    milestones: { all: [...MILESTONES], awarded },
+    milestones: { all: milestones, awarded },
   };
 }

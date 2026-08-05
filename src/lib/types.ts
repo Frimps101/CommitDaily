@@ -34,6 +34,7 @@ export type SettingsDTO = {
   lastCallEnabled: boolean;
   lastCallTime: string;
   goalTotal: number;
+  milestones: number[];
 };
 
 export type DashboardDTO = {

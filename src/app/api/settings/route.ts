@@ -18,6 +18,7 @@ function toPublic(s: Awaited<ReturnType<typeof getOrCreateSettings>>) {
     lastCallEnabled: s.lastCallEnabled,
     lastCallTime: s.lastCallTime,
     goalTotal: s.goalTotal,
+    milestones: s.milestones,
   };
 }
 

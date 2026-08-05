@@ -22,6 +22,7 @@ export type SettingsUpdate = Partial<
     | "lastCallEnabled"
     | "lastCallTime"
     | "goalTotal"
+    | "milestones"
   >
 >;
 

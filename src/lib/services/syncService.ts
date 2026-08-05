@@ -18,7 +18,7 @@ import {
 import { computeStreak, type StreakResult } from "@/lib/services/streakService";
 import {
   computeProgress,
-  MILESTONES,
+  normalizeMilestones,
   type Progress,
 } from "@/lib/services/statsService";
 import { startOfYearLocal } from "@/lib/date";
@@ -78,11 +78,17 @@ export async function computeFromStore(userId: string): Promise<SyncResult> {
     timezone: settings.timezone,
   });
 
-  const progress = computeProgress(total, settings.goalTotal, settings.timezone);
+  const milestones = normalizeMilestones(settings.milestones);
+  const progress = computeProgress(
+    total,
+    settings.goalTotal,
+    settings.timezone,
+    milestones,
+  );
 
   // Award any milestone at or below the current total; collect the new ones.
   const newMilestones: number[] = [];
-  for (const m of MILESTONES) {
+  for (const m of milestones) {
     if (total >= m) {
       const created = await awardMilestone(userId, m);
       if (created) newMilestones.push(m);
