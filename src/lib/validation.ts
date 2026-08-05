@@ -11,6 +11,13 @@ export const settingsUpdateSchema = z
     lastCallEnabled: z.boolean(),
     lastCallTime: z.string().regex(HHMM, "Expected HH:mm"),
     goalTotal: z.number().int().min(1).max(1_000_000),
+    milestones: z
+      .array(z.number().int().min(1).max(1_000_000))
+      .min(1, "Add at least one milestone")
+      .max(20, "Too many milestones (max 20)")
+      .transform((arr) =>
+        Array.from(new Set(arr)).sort((a, b) => a - b),
+      ),
   })
   .partial();
 

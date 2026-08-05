@@ -1,6 +1,16 @@
 import { daysRemainingInclusive, endOfYearLocal, type LocalDate } from "@/lib/date";
 
-export const MILESTONES = [100, 250, 500, 750, 1000] as const;
+export const DEFAULT_MILESTONES = [100, 250, 500, 750, 1000] as const;
+
+/** @deprecated Use per-user `settings.milestones`; kept for defaults/fallback. */
+export const MILESTONES = DEFAULT_MILESTONES;
+
+/** Sort, dedupe, and drop non-positive values from a milestone list. */
+export function normalizeMilestones(values: readonly number[]): number[] {
+  return Array.from(new Set(values.filter((n) => Number.isFinite(n) && n > 0)))
+    .map((n) => Math.floor(n))
+    .sort((a, b) => a - b);
+}
 
 export type Progress = {
   goalTotal: number;
@@ -27,6 +37,7 @@ export function computeProgress(
   total: number,
   goalTotal: number,
   timezone: string,
+  milestones: readonly number[] = DEFAULT_MILESTONES,
   deadline?: LocalDate,
   now: Date = new Date(),
 ): Progress {
@@ -38,7 +49,7 @@ export function computeProgress(
 
   let lastMilestone: number | null = null;
   let nextMilestone: number | null = null;
-  for (const m of MILESTONES) {
+  for (const m of normalizeMilestones(milestones)) {
     if (total >= m) lastMilestone = m;
     else if (nextMilestone === null) nextMilestone = m;
   }
@@ -60,6 +71,9 @@ export function computeProgress(
 export function newlyReachedMilestones(
   previousTotal: number,
   total: number,
+  milestones: readonly number[] = DEFAULT_MILESTONES,
 ): number[] {
-  return MILESTONES.filter((m) => previousTotal < m && total >= m);
+  return normalizeMilestones(milestones).filter(
+    (m) => previousTotal < m && total >= m,
+  );
 }

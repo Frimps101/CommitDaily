@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Save, ChevronDown } from "lucide-react";
+import { Save, ChevronDown, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -63,6 +63,23 @@ export function SettingsForm() {
     if (tz) patch({ timezone: tz });
   }
 
+  const milestones = draft.milestones ?? [];
+
+  function updateMilestone(index: number, value: number) {
+    const next = milestones.slice();
+    next[index] = value;
+    patch({ milestones: next });
+  }
+
+  function removeMilestone(index: number) {
+    patch({ milestones: milestones.filter((_, i) => i !== index) });
+  }
+
+  function addMilestone() {
+    const highest = milestones.length ? Math.max(...milestones) : 0;
+    patch({ milestones: [...milestones, highest + 100] });
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -97,6 +114,56 @@ export function SettingsForm() {
               streak alive.
             </p>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Milestones</CardTitle>
+          <CardDescription>
+            Checkpoints to celebrate on the way to your goal. They&apos;re sorted
+            automatically when you save.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {milestones.length ? (
+            <div className="grid gap-2 sm:grid-cols-2">
+              {milestones.map((m, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min={1}
+                    value={Number.isFinite(m) ? m : ""}
+                    onChange={(e) => updateMilestone(i, Number(e.target.value))}
+                    aria-label={`Milestone ${i + 1}`}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeMilestone(i)}
+                    aria-label="Remove milestone"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No milestones yet. Add one to start celebrating checkpoints.
+            </p>
+          )}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addMilestone}
+            disabled={milestones.length >= 20}
+          >
+            <Plus className="h-4 w-4" />
+            Add milestone
+          </Button>
         </CardContent>
       </Card>
 

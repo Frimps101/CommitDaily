@@ -99,6 +99,9 @@ model Settings {
   goalTotal     Int      @default(1000)
   goalDeadline  DateTime @default(dbgenerated("date_trunc('year', now()) + interval '1 year' - interval '1 day'"))
 
+  // User-defined milestone checkpoints (contribution totals to celebrate).
+  milestones Int[] @default([100, 250, 500, 750, 1000])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
