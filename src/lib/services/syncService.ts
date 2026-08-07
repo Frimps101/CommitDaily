@@ -10,7 +10,10 @@ import {
   getTotalContributions,
 } from "@/lib/repositories/contributionRepository";
 import { saveStreakState } from "@/lib/repositories/streakRepository";
-import { awardMilestone } from "@/lib/repositories/milestoneRepository";
+import {
+  awardMilestone,
+  getAwardedThresholds,
+} from "@/lib/repositories/milestoneRepository";
 import {
   fetchContributions,
   fetchViewerLogin,
@@ -86,10 +89,14 @@ export async function computeFromStore(userId: string): Promise<SyncResult> {
     milestones,
   );
 
-  // Award any milestone at or below the current total; collect the new ones.
+  // Award any milestone at or below the current total that isn't already on
+  // record; collect the new ones. Checking first avoids issuing a doomed INSERT
+  // for milestones already earned (which Prisma logs as a unique-constraint
+  // error on every sync). awardMilestone still guards the rare race.
+  const alreadyAwarded = new Set(await getAwardedThresholds(userId));
   const newMilestones: number[] = [];
   for (const m of milestones) {
-    if (total >= m) {
+    if (total >= m && !alreadyAwarded.has(m)) {
       const created = await awardMilestone(userId, m);
       if (created) newMilestones.push(m);
     }

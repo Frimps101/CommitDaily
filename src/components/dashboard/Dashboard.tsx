@@ -55,7 +55,7 @@ export function Dashboard() {
 
   return (
     <div className="min-h-screen pb-16">
-      <Header onRefresh={() => sync.mutate()} refreshing={sync.isPending} />
+      <Header />
       <CelebrationOverlay />
 
       <main className="container space-y-8 py-10">

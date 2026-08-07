@@ -2,18 +2,13 @@
 
 import Link from "next/link";
 import { signOut } from "next-auth/react";
-import { Flame, RefreshCw, Settings, LogOut } from "lucide-react";
+import { Flame, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ReminderButton } from "@/components/ReminderButton";
-import { cn } from "@/lib/utils";
 
 export function Header({
-  onRefresh,
-  refreshing,
   showActions = true,
 }: {
-  onRefresh?: () => void;
-  refreshing?: boolean;
   showActions?: boolean;
 }) {
   return (
@@ -25,17 +20,6 @@ export function Header({
         </Link>
         {showActions ? (
           <div className="flex items-center gap-1">
-            {onRefresh ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onRefresh}
-                disabled={refreshing}
-                title="Refresh from GitHub"
-              >
-                <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
-              </Button>
-            ) : null}
             <ReminderButton />
             <Button variant="ghost" size="icon" asChild title="Settings">
               <Link href="/settings">
